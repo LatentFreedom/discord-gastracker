@@ -39,8 +39,7 @@ const styleMessage = () => {
         embed.setColor('#2fff00');
     }
 
-    embed.addFields(
-		{ name: 'Slow 🐢 | >10 minutes', value: `${gasPrices.result.SafeGasPrice} Gwei` },
+    embed.addFields({ name: 'Slow 🐢 | >10 minutes', value: `${gasPrices.result.SafeGasPrice} Gwei` },
         { name: 'Proposed 🙂 | 3 minutes', value: `${gasPrices.result.ProposeGasPrice} Gwei` },
         { name: 'Fast ⚡ | 15 seconds', value: `${gasPrices.result.FastGasPrice} Gwei` },
     );
