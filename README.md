@@ -16,3 +16,7 @@ Get a Bot to change it's activity status to the current gas prices for Ethereum.
 DISCORD_TOKEN=
 ETHERSCAN_PRIV=
 ```
+
+## Discord / Commands
+1. **gas:** replies with current gas prices on etherscan
+2. **alert:** alert user when gas reaches specified amount
