@@ -80,12 +80,16 @@ const styleMessage = () => {
 
 
 getGas = () => {
-    let req = `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${process.env.ETHERSCAN_PRIV}`;
-    axios.get(req).then(res => {
-        gasPrices = res.data;
-        client.user.setActivity(`⚡${gasPrices.result.FastGasPrice} 🚶${gasPrices.result.ProposeGasPrice} 🐢${gasPrices.result.SafeGasPrice}`);
-        checkAlerts();
-    })
+    try {
+        let req = `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${process.env.ETHERSCAN_PRIV}`;
+        axios.get(req).then(res => {
+            gasPrices = res.data;
+            client.user.setActivity(`⚡${gasPrices.result.FastGasPrice} 🚶${gasPrices.result.ProposeGasPrice} 🐢${gasPrices.result.SafeGasPrice}`);
+            checkAlerts();
+        })
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 checkAlerts = () => {
