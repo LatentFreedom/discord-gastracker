@@ -4,7 +4,6 @@ require('dotenv').config();
 
 let gasPrices = [];
 let alerts = new Map();
-var fs = require('fs');
 
 const client = new Client({
     intents : [Intents.FLAGS.GUILDS, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES]
@@ -15,23 +14,6 @@ client.on('ready', () => {
     createCommands();
     getGas();
 });
-
-const saveAlerts = (alertData) => {
-    fs.writeFile("./alerts.json", JSON.stringify(alertData), function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });
-}
-
-const getAlerts = () => {
-    fs.readFile('./alerts.json', 'utf-8', (err, data) => {
-        if (err) {
-            throw err;
-        }
-        alerts = JSON.parse(data.toString());
-    });
-}
 
 const createCommands = () => {
     const Guilds = client.guilds.cache.map(guild => guild.id);
@@ -79,7 +61,7 @@ const styleMessage = () => {
 }
 
 
-getGas = () => {
+const getGas = () => {
     try {
         let req = `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${process.env.ETHERSCAN_PRIV}`;
         axios.get(req).then(res => {
@@ -92,7 +74,7 @@ getGas = () => {
     }
 }
 
-checkAlerts = () => {
+const checkAlerts = () => {
     try {
         alerts.forEach((amounts, author) => {
             amounts.forEach((amount, index) => {
@@ -138,7 +120,6 @@ client.on('interactionCreate', async (interaction) => {
             newAlertList.push(amount);
             alerts.set(user, newAlertList);
         }
-        saveAlerts(alerts);
     }
 })
 
