@@ -61,14 +61,13 @@ const styleMessage = () => {
 }
 
 
-const getGas = () => {
+const getGas = async () => {
     try {
         let req = `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${process.env.ETHERSCAN_PRIV}`;
-        axios.get(req).then(res => {
-            gasPrices = res.data;
-            client.user.setActivity(`⚡${gasPrices.result.FastGasPrice} 🚶${gasPrices.result.ProposeGasPrice} 🐢${gasPrices.result.SafeGasPrice}`);
-            checkAlerts();
-        })
+        const res = await axios.get(req);
+        gasPrices = res.data;
+        client.user.setActivity(`⚡${gasPrices.result.FastGasPrice} 🚶${gasPrices.result.ProposeGasPrice} 🐢${gasPrices.result.SafeGasPrice}`);
+        checkAlerts();
     } catch (err) {
         console.log(err);
     }
@@ -78,7 +77,7 @@ const checkAlerts = () => {
     try {
         alerts.forEach((amounts, author) => {
             amounts.forEach((amount, index) => {
-                if(amount >= gasPrices.result.FastGasPrice) {
+                if (amount >= gasPrices.result.FastGasPrice) {
                     author.send(`Gas price is now ${gasPrices.result.FastGasPrice} gwei.`);
                     let newAlertList = [...alerts.get(author).slice(0, index), ...alerts.get(author).slice(index+1)];
                     alerts.set(author, newAlertList);
