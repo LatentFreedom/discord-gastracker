@@ -74,19 +74,20 @@ const getGas = async () => {
 }
 
 const checkAlerts = () => {
-    try {
-        alerts.forEach((amounts, author) => {
-            amounts.forEach((amount, index) => {
+    alerts.forEach((amounts, author) => {
+        amounts.forEach(async (amount, index) => {
+            try {
                 if (amount >= gasPrices.result.FastGasPrice) {
-                    author.send(`Gas price is now ${gasPrices.result.FastGasPrice} gwei.`);
+                    const res = await author.send(`Gas price is now ${gasPrices.result.FastGasPrice} gwei.`);
+                    console.log(res);
                     let newAlertList = [...alerts.get(author).slice(0, index), ...alerts.get(author).slice(index+1)];
                     alerts.set(author, newAlertList);
                 }
-            })
+            } catch (err) {
+                console.log(err);
+            }
         })
-    } catch (err) {
-        console.log(err);
-    }
+    })
 }
 
 setInterval(getGas, 10 * 3000);
@@ -112,7 +113,7 @@ client.on('interactionCreate', async (interaction) => {
             ephemeral: true
         })
         // Add alert to Mapping
-        if(!alerts.has(user)) {
+        if (!alerts.has(user)) {
             alerts.set(user, [amount]);
         } else {
             let newAlertList = alerts.get(user);
