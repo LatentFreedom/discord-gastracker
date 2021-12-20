@@ -81,7 +81,7 @@ const checkAlerts = () => {
                         if (error.code === Constants.APIErrors.CANNOT_MESSAGE_USER) {
                             // console.error(`Failed to send direct message to ${author.username}#${author.discriminator}`);
                             client.channels.cache.get(channelId)
-                                .send(`@${author.username}, gas price is ${gasPrices.result.FastGasPrice} gwei.`)
+                                .send(`<@${author.id}>, gas price is **${gasPrices.result.FastGasPrice}** gwei.`)
                                 .catch(error => {
                                     if (error.code === Constants.APIErrors.MISSING_ACCESS) {
                                         console.error(`Failed to send message to ${author.username}#${author.discriminator}. Bot missing access to channel.`);
