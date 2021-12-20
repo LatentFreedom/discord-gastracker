@@ -67,7 +67,6 @@ const getGas = async () => {
         const res = await axios.get(req);
         gasPrices = res.data;
         client.user.setActivity(`⚡${gasPrices.result.FastGasPrice} 🚶${gasPrices.result.ProposeGasPrice} 🐢${gasPrices.result.SafeGasPrice}`);
-        checkAlerts();
     } catch (err) {
         console.log(err);
     }
@@ -75,11 +74,21 @@ const getGas = async () => {
 
 const checkAlerts = () => {
     alerts.forEach((amounts, author) => {
-        amounts.forEach(async (amount, index) => {
+        amounts.forEach(({amount, channelId}, index) => {
             try {
                 if (amount >= gasPrices.result.FastGasPrice) {
-                    const res = await author.send(`Gas price is now ${gasPrices.result.FastGasPrice} gwei.`);
-                    console.log(res);
+                    const res = author.send(`Gas price is now ${gasPrices.result.FastGasPrice} gwei.`).catch(error => {
+                        if (error.code === Constants.APIErrors.CANNOT_MESSAGE_USER) {
+                            // console.error(`Failed to send direct message to ${author.username}#${author.discriminator}`);
+                            client.channels.cache.get(channelId)
+                                .send(`@${author.username}, gas price is ${gasPrices.result.FastGasPrice} gwei.`)
+                                .catch(error => {
+                                    if (error.code === Constants.APIErrors.MISSING_ACCESS) {
+                                        console.error(`Failed to send message to ${author.username}#${author.discriminator}. Bot missing access to channel.`);
+                                    }
+                                });
+                        }
+                    });
                     let newAlertList = [...alerts.get(author).slice(0, index), ...alerts.get(author).slice(index+1)];
                     alerts.set(author, newAlertList);
                 }
@@ -90,14 +99,15 @@ const checkAlerts = () => {
     })
 }
 
-setInterval(getGas, 10 * 3000);
+setInterval(getGas, 10 * 2000);
+setInterval(checkAlerts, 10 * 3000);
 
-client.on('interactionCreate', async (interaction) => {
+client.on('interactionCreate', (interaction) => {
     if (!interaction.isCommand()) { return; }
     const { commandName, options } = interaction;
     if (commandName === 'gas') {
         // Process gas command
-        await interaction.deferReply({
+        interaction.deferReply({
             ephemeral: true,
         });
         interaction.editReply({
@@ -112,13 +122,17 @@ client.on('interactionCreate', async (interaction) => {
             content: `Thanks, **${name}**. I will send a private message when gas is below **${amount}** Gwei.`,
             ephemeral: true
         })
-        // Add alert to Mapping
+        // Add alert to alerts mapping
+        const alert = {
+            amount: amount,
+            channelId: interaction.channelId
+        };
         if (!alerts.has(user)) {
-            alerts.set(user, [amount]);
+            alerts.set(user, [alert]);
         } else {
             let newAlertList = alerts.get(user);
-            newAlertList.push(amount);
-            alerts.set(user, newAlertList);
+            newAlertList.push(alert);
+            alerts.set(user,newAlertList);
         }
     }
 })
