@@ -42,14 +42,20 @@ const createCommands = () => {
     });
 }
 
-const styleMessage = () => {
+const styleGasMessage = () => {
     const embed = new MessageEmbed().setTitle('⛽ Current Gas Prices');
-    if (gasPrices.result.FastGasPrice > 100) {
+    if (gasPrices.result.FastGasPrice > 200) {
         embed.setColor('#ff0000');
+        embed.setImage('https://c.tenor.com/-kZOB16tELEAAAAC/this-is-fine-fire.gif');
+    } else if (gasPrices.result.FastGasPrice > 100) {
+        embed.setColor('#ff0000');
+        embed.setImage('https://c.tenor.com/O2Tz9B1UEMsAAAAd/sxv-wtf.gif');
     } else if (gasPrices.result.FastGasPrice > 40) {
         embed.setColor('#ff8000');
+        embed.setImage('https://c.tenor.com/WpSTTJe3SpgAAAAC/not-good-enough-randy-marsh.gif');
     } else {
         embed.setColor('#2fff00');
+        embed.setImage('https://c.tenor.com/xxFSg4CCwmwAAAAC/leonardo-dicaprio-maket-it-rain.gif');
     }
 
     embed.addFields({ name: 'Slow 🐢 | >10 minutes', value: `${gasPrices.result.SafeGasPrice} Gwei` },
@@ -107,11 +113,9 @@ client.on('interactionCreate', (interaction) => {
     const { commandName, options } = interaction;
     if (commandName === 'gas') {
         // Process gas command
-        interaction.deferReply({
-            ephemeral: true,
-        });
-        interaction.editReply({
-            embeds: styleMessage(),
+        interaction.reply({
+            // ephemeral: true,
+            embeds: styleGasMessage(),
         })
     } else if (commandName === 'alert') {
         // Process alert command
